@@ -155,13 +155,14 @@ void tabulate(void)
     {
         int j = 0;
         int times = 0;
-        while (times <= candidate_count)
+        while (times < candidate_count)
         {
+            printf("%i\n",candidate_count);
             int count = preferences[i][j];
             int voteValue = candidates[count].votes;
             printf("%i\n",j);
-            printf("%i\n",count);
-            if (j > candidate_count)
+            times++;
+            if (count > candidate_count)
             {
                 printf("broke\n");
                 break;
@@ -170,7 +171,6 @@ void tabulate(void)
             if (candidates[count].eliminated != true)
             {
                 candidates[count].votes += 1;
-                printf("voted\n");
                 printf("%i\n",candidates[count].votes);
                 break;
             }
@@ -178,7 +178,6 @@ void tabulate(void)
             {
                 j++;
             }
-            times++;
         }
     }
     return;
@@ -189,7 +188,7 @@ bool print_winner(void)
 {
     for (int i = 0; i < candidate_count; i++)
     {
-        if (candidates[i].votes >= voter_count)
+        if (candidates[i].votes >= (voter_count/2))
         {
             printf("%s\n",candidates[i].name);
             return true;
