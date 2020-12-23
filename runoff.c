@@ -29,8 +29,8 @@ int voter_count;
 int candidate_count;
 
 // Utilities
-int strlen(char *string);
-bool strcmp(char *string,char *string2);
+int stringlen(char *string);
+bool stringcmp(char *string,char *string2);
 
 // Function prototypes
 bool vote(int voter, int rank, char *name);
@@ -63,7 +63,6 @@ int main(int argc, char *argv[])
         candidates[i].eliminated = false;
     }
     printf("Number of voters: ");
-    int voter_count;
     scanf("%d", &voter_count);
     printf("%i\n",voter_count);
     if (voter_count > MAX_VOTERS)
@@ -86,7 +85,7 @@ int main(int argc, char *argv[])
             if (!vote(i, j, name))
             {
                 printf("Invalid vote.\n");
-                // return 4;
+                return 4;
             }
         }
         printf("\n");
@@ -139,7 +138,7 @@ bool vote(int voter, int rank, char *name)
 {
     for (int i = 0; i < candidate_count; i++)
     {
-        if (strcmp(candidates[i].name, name))
+        if (stringcmp(candidates[i].name, name))
         {
             preferences[voter][rank] = i;
             return true;
@@ -151,28 +150,35 @@ bool vote(int voter, int rank, char *name)
 // Tabulate votes for non-eliminated candidates
 void tabulate(void)
 {
+    // printf("%i\n",voter_count);
     for (int i = 0; i < voter_count; i++)
     {
-        for (int k = 0; k < candidate_count; k++)
+        int j = 0;
+        int times = 0;
+        while (times <= candidate_count)
         {
-            int j = 0;
-            while (true)
+            int count = preferences[i][j];
+            int voteValue = candidates[count].votes;
+            printf("%i\n",j);
+            printf("%i\n",count);
+            if (j > candidate_count)
             {
-                int count = preferences[i][j];
-                if (&candidates[count] == NULL)
-                {
-                    break;
-                }
-                if (candidates[count].eliminated != true)
-                {
-                    candidates[count].votes += 1;
-                    break;
-                }
-                else
-                {
-                    j++;
-                }
+                printf("broke\n");
+                break;
             }
+
+            if (candidates[count].eliminated != true)
+            {
+                candidates[count].votes += 1;
+                printf("voted\n");
+                printf("%i\n",candidates[count].votes);
+                break;
+            }
+            else
+            {
+                j++;
+            }
+            times++;
         }
     }
     return;
@@ -185,9 +191,7 @@ bool print_winner(void)
     {
         if (candidates[i].votes >= voter_count)
         {
-            printf("%s\n",candidates[i]);
-            printf("%i\n",voter_count);
-            printf("%i\n",candidates[i].votes);
+            printf("%s\n",candidates[i].name);
             return true;
         }
     }
@@ -217,7 +221,7 @@ void eliminate(int min)
 
 // Utilities
 
-bool strcmp(char *string, char *string2)
+bool stringcmp(char *string, char *string2)
 {
     int i = 0;
     bool r;
@@ -233,7 +237,7 @@ bool strcmp(char *string, char *string2)
     return r;
 }
 
-int strlen(char *string)
+int stringlen(char *string)
 {
     int i = 0;
     while (string[i] != '\000')
