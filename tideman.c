@@ -170,24 +170,13 @@ void add_pairs(void)
         {
             int mainCandidate = preferences[i][j];
             int candidateToCmp = preferences[j][i];
-            if (j != i)
+            int product = mainCandidate - candidateToCmp;
+            if (product > 0)
             {
-                if (mainCandidate != candidateToCmp)
-                {
-                    if (mainCandidate > candidateToCmp)
-                    {
-                        pairs[pair_count].winner = i;
-                        pairs[pair_count].loser = j;
-                        printf("difference--%i\n",mainCandidate - candidateToCmp);
-                        pair_count++;
-                    }
-                    // else if (candidateToCmp > mainCandidate)
-                    // {
-                    //     pairs[pair_count].winner = j;
-                    //     pairs[pair_count].loser = i;
-                    // }
-                    // pair_count++;
-                }
+                pairs[pair_count].winner = i;
+                pairs[pair_count].loser = j;
+                printf("difference--%i\n", mainCandidate - candidateToCmp);
+                pair_count++;
             }
         }
     }
@@ -197,69 +186,73 @@ void add_pairs(void)
         printf("Loser:%i\n", pairs[i].loser);
         printf("---------------\n");
     }
-
     return;
 }
 
 // Sort pairs in decreasing order by strength of victory
 void sort_pairs(void)
 {
-    int pairInfo[pair_count][2];
+    int pairInfo[pair_count][2]; // Stores index and Margin through which a pair win between each other;
+    //make pairInfo
     for (int i = 0; i < pair_count; i++)
     {
         int mainCandidate = preferences[pairs[i].winner][pairs[i].loser];
         int candidateToCmp = preferences[pairs[i].loser][pairs[i].winner];
 
-        pairInfo[i][0] = i;
-        pairInfo[i][1] = mainCandidate - candidateToCmp;
+        pairInfo[i][0] = i; // index of pair
+        pairInfo[i][1] = mainCandidate - candidateToCmp; // win margin
     }
+    // sort PairInfo in respect to win margin
     for (int i = 0; i < pair_count; i++)
     {
         for (int j = i + 1; j < pair_count; j++)
         {
-            if (pairInfo[i][1] > pairInfo[j][1])
+            if (pairInfo[i][1] < pairInfo[j][1])
             {
-                int temp[2] = {pairInfo[i][0], pairInfo[i][1]};
+                int temp[1][2];
+                temp[0][0] = pairInfo[i][0];
+                temp[0][1] = pairInfo[i][1];
+
                 pairInfo[i][0] = pairInfo[j][0];
                 pairInfo[i][1] = pairInfo[j][1];
 
-                pairInfo[j][0] = temp[0];
-                pairInfo[j][1] = temp[1];
+                pairInfo[j][0] = temp[0][0];
+                pairInfo[j][1] = temp[0][1];
             }
         }
-        printf("PairInfo[0]:%i\nPairInfo[1]:%i\n", pairInfo[i][0], pairInfo[i][1]);
-        printf("00---------------00\n");
     }
-    pair tem[pair_count];
+    pair pairSorted[MAX * (MAX - 1) / 2];// Duplicate of pairs
+    // add Pairs data into pairSorted in decending order using pairInfo
     for (int i = 0; i < pair_count; i++)
     {
-        tem[i].winner = pairs[i].winner;
-        tem[i].loser = pairs[i].loser;
-
-        pairs[i].winner = pairs[pairInfo[i][0]].winner;
-        pairs[i].loser = pairs[pairInfo[i][0]].loser;
-
-        pairs[pairInfo[i][0]].winner = tem[i].winner;
-        pairs[pairInfo[i][0]].loser = tem[i].loser;
+        pairSorted[i].winner = pairs[pairInfo[i][0]].winner;
+        pairSorted[i].loser = pairs[pairInfo[i][0]].loser;
     }
+    // replace pairs with pairsSorted which is in decending order
     for (int i = 0; i < pair_count; i++)
     {
-        int mainCandidate = preferences[pairs[i].winner][pairs[i].loser];
-        int candidateToCmp = preferences[pairs[i].loser][pairs[i].winner];
-
-        printf("winner:%i\nloser:%i\n", pairs[i].winner, pairs[i].loser);
-        printf("difference--%i\n",mainCandidate - candidateToCmp);
-        printf("----------------------------\n");
+        pairs[i].winner = pairSorted[i].winner;
+        pairs[i].loser = pairSorted[i].loser;
     }
-    printf("%i\n", pair_count);
-
+    // In this way we will get pairs sorted in decending order
     return;
 }
 
 // Lock pairs into the candidate graph in order, without creating cycles
 void lock_pairs(void)
 {
-    // TODO
+    for (int i = 0; i < pair_count; i++)
+    {
+        locked[pairs[i].winner][pairs[i].loser] = true;
+    }
+    for (int i = 0; i < candidate_count; i++)
+    {
+        for (int j = 0; j < candidate_count; j++)
+        {
+            printf("%i-", locked[i][j]);
+        }
+        printf("\n");
+    }
     return;
 }
 
