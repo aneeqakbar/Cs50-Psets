@@ -36,7 +36,9 @@ void record_preferences(int ranks[]);
 void add_pairs(void);
 void sort_pairs(void);
 void lock_pairs(void);
+bool circleChecker(int winner, int loser);
 void print_winner(void);
+
 // Utilities
 bool stringcmp(char str1[], char str2[]);
 
@@ -154,9 +156,10 @@ void record_preferences(int ranks[])
             {
                 preferences[i][h] += 1;
             }
-            printf("%i-", preferences[i][h]);
+            //print prefrences grid
+            //printf("%i-", preferences[i][h]);
         }
-        printf("\n");
+        //printf("\n");
     }
     return;
 }
@@ -180,12 +183,13 @@ void add_pairs(void)
             }
         }
     }
-    for (int i = 0; i < pair_count; i++)
-    {
-        printf("Winner:%i\n", pairs[i].winner);
-        printf("Loser:%i\n", pairs[i].loser);
-        printf("---------------\n");
-    }
+    //print unsorted pairs
+//     for (int i = 0; i < pair_count; i++)
+//     {
+//         printf("Winner:%i\n", pairs[i].winner);
+//         printf("Loser:%i\n", pairs[i].loser);
+//         printf("---------------\n");
+//     }
     return;
 }
 
@@ -199,7 +203,7 @@ void sort_pairs(void)
         int mainCandidate = preferences[pairs[i].winner][pairs[i].loser];
         int candidateToCmp = preferences[pairs[i].loser][pairs[i].winner];
 
-        pairInfo[i][0] = i; // index of pair
+        pairInfo[i][0] = i;                              // index of pair
         pairInfo[i][1] = mainCandidate - candidateToCmp; // win margin
     }
     // sort PairInfo in respect to win margin
@@ -221,7 +225,7 @@ void sort_pairs(void)
             }
         }
     }
-    pair pairSorted[MAX * (MAX - 1) / 2];// Duplicate of pairs
+    pair pairSorted[MAX * (MAX - 1) / 2]; // Duplicate of pairs
     // add Pairs data into pairSorted in decending order using pairInfo
     for (int i = 0; i < pair_count; i++)
     {
@@ -235,6 +239,17 @@ void sort_pairs(void)
         pairs[i].loser = pairSorted[i].loser;
     }
     // In this way we will get pairs sorted in decending order
+    for (int i = 0; i < pair_count; i++)
+    {
+        int mainCandidate = preferences[pairs[i].winner][pairs[i].loser];
+        int candidateToCmp = preferences[pairs[i].loser][pairs[i].winner];
+        
+        printf("Winner:%i\n", pairs[i].winner);
+        printf("Loser:%i\n", pairs[i].loser);
+        printf("difference--%i\n", mainCandidate - candidateToCmp);
+        printf("---------------\n");
+    }
+    
     return;
 }
 
@@ -243,23 +258,69 @@ void lock_pairs(void)
 {
     for (int i = 0; i < pair_count; i++)
     {
-        locked[pairs[i].winner][pairs[i].loser] = true;
+        // Check for circle and if there is no circle it will set locked pair to true
+        if (!circleChecker(pairs[i].winner, pairs[i].loser))
+        {
+            locked[pairs[i].winner][pairs[i].loser] = true;
+        }
     }
+    //Print locked grid
+//     for (int i = 0; i < candidate_count; i++)
+//     {
+//         for (int j = 0; j < candidate_count; j++)
+//         {
+//             printf("%i-", locked[i][j]);
+//         }
+//         printf("\n");
+//     }
+//     printf("!!!!!!!!!!!!Locked!!!!!!!!!!!!!\n");
+    return;
+}
+
+//circle Checker function,Checks for circle
+bool circleChecker(int winner, int loser)
+{
+    //if loser from bottom is beaten by this loser then return true
+    if (loser == winner)
+    {
+        return true;
+    }
+    // check if loser have beaten winner at any point
     for (int i = 0; i < candidate_count; i++)
     {
-        for (int j = 0; j < candidate_count; j++)
+        if (locked[loser][i])
         {
-            printf("%i-", locked[i][j]);
+            // recursion effect here
+            if (circleChecker(winner, i))
+            {
+                return true;
+            }
         }
-        printf("\n");
     }
-    return;
+    return false;
 }
 
 // Print the winner of the election
 void print_winner(void)
 {
-    // TODO
+    for (int i = 0; i < candidate_count; i++)
+    {
+        bool pointed = false;
+        for (int j = 0; j < candidate_count; j++)
+        {
+            // if there is not pointer to [i]. "i is not beaten by anyone"
+            if (locked[j][i])// this will be true if i is beaten by someone else will return false
+            {
+                pointed = true;
+            }
+        }
+        if (pointed == false)// if pointer is still false after the check then system will consider i as winner.
+        {
+            printf("Winner: %s\n",candidates[i]); // print name of candidate
+            return;
+        }        
+    }
+    printf("No Winner\n");// In any case if there's no winner then print "No winner"
     return;
 }
 
@@ -267,6 +328,7 @@ void print_winner(void)
 
 bool stringcmp(char str1[], char str2[])
 {
+    bool r;
     int i = 0;
     while (str1[i] == str2[i])
     {
@@ -276,9 +338,7 @@ bool stringcmp(char str1[], char str2[])
         }
         i++;
     }
-    if (str1[i] == '\000' && str2[i] == '\000')
-    {
-        return true;
-    }
-    return false;
+    (str1[i] == '\000' && str2[i] == '\000') ? (r = true) : (r = false);
+
+    return r;
 }
