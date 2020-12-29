@@ -319,7 +319,7 @@ void print_winner(void)
         }
         if (pointed == false) // if pointer is still false after the check then system will consider i as winner.
         {
-            printf("\033[1;32m \bWinner: %s\033[0m\n", candidates[i]); // print name of candidate
+            printf("\033[1;32m \bWinner:\033[0m %s\n", candidates[i]); // print name of candidate
             return;
         }
     }
